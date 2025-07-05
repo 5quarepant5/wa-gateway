@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Wa Gateway - Kirim Pesan Misterius</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="one-piece1.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Bebas Neue', cursive;
+      background-image: url('one-piece.png');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 15px 25px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+      background: transparent;
+      backdrop-filter: blur(0px);
+    }
+
+    .menu-btn {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu-dropdown {
+      position: absolute;
+      right: 25px;
+      top: 60px;
+      background-color: rgba(0, 0, 0, 0.85);
+      border-radius: 10px;
+      padding: 10px 15px;
+      display: none;
+    }
+
+    .menu-dropdown a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      font-size: 16px;
+    }
+
+    .container {
+      margin-top: 80px;
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 50px;
+    }
+
+    .form-box {
+      background: rgba(0, 0, 0, 0.75);
+      padding: 30px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 0 12px #000;
+      margin: 20px;
+    }
+
+    h2 {
+      color: #1E90FF;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    input, textarea {
+      font-family: 'Roboto', sans-serif;
+      background: #222;
+      color: white;
+    }
+
+    button {
+      margin-top: 15px;
+      background-color: #1E90FF;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #187bcd;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #ccc;
+      margin-top: 10px;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      color: #ccc;
+      background: transparent;
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 28px;
+      }
+
+      .form-box {
+        padding: 20px;
+      }
+
+      .menu-dropdown {
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    <div class="menu-dropdown" id="menu">
+      <a href="https://github.com/5quarepant5/wa-gateway" target="_blank">Source</a>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="container">
+    <div class="form-box">
+      <h2>☠️ WA GATEWAY ☠️</h2>
+      <p>Kirim pesan WhatsApp secara misterius!</p>
+
+      <form id="form">
+        <label for="nomor">Nomor</label>
+        <input type="text" id="nomor" placeholder="628xxxxxxxxxx" required>
+
+        <label for="pesan">Pesan</label>
+        <textarea id="pesan" rows="4" placeholder="Tulis pesanmu di sini..." required></textarea>
+
+        <button type="submit">Kirim</button>
+      </form>
+
+      <div class="note">*Jangan pakai tanda +, langsung ketik kode negara (contoh: 62 untuk Indonesia)</div>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    ⚡ Powered by Irvan
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nomor = document.getElementById("nomor").value.trim();
+      const pesan = document.getElementById("pesan").value.trim();
+      const status = document.getElementById("status");
+
+      status.textContent = "🚀 Mengirim...";
+
+      try {
+        const res = await fetch("/api/kirim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nomor, pesan })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          status.textContent = "✅ Pesan berhasil dikirim!";
+        } else {
+          status.textContent = "❌ Gagal: " + (data.error || "Terjadi kesalahan.");
+        }
+      } catch (err) {
+        status.textContent = "❌ Gagal menghubungi server.";
+      }
+    });
+  </script>
+</body>
+</html>
